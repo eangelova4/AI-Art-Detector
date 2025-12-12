@@ -1,59 +1,156 @@
-<div>Teachable Machine Image Model</div>
-<button type="button" onclick="init()">Start</button>
-<div id="webcam-container"></div>
-<div id="label-container"></div>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-<script type="text/javascript">
-    // More API functions here:
-    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Art Detector</title>
 
-    // the link to your model provided by Teachable Machine export panel
+    <!-- Retro Windows 98 styling -->
+    <style>
+        body {
+            font-family: "MS Sans Serif", Arial, sans-serif;
+            background: #008080;
+            margin: 0;
+            padding: 20px;
+            color: black;
+        }
+
+        .window {
+            background: #c0c0c0;
+            border: 2px solid #fff;
+            border-right-color: #404040;
+            border-bottom-color: #404040;
+            padding: 10px;
+            width: 600px;
+            margin: auto;
+        }
+
+        .title-bar {
+            background: navy;
+            color: white;
+            padding: 5px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 10px;
+            background: #e0e0e0;
+            border: 2px inset #808080;
+        }
+
+        input[type="file"] {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        #result-box {
+            background: white;
+            padding: 10px;
+            border: 2px inset #808080;
+            margin-top: 15px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+
+    <!-- Teachable Machine + TensorFlow -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+</head>
+
+<body>
+
+<div class="window">
+    <div class="title-bar">AI Art Detector</div>
+    <div class="content">
+
+        <h3>What this tool does</h3>
+        <p>
+            AI tools have become extremely advanced, making it difficult to tell whether a piece of art is human-made 
+            or created by an artificial intelligence system.  
+            This website uses a **Google Teachable Machine image classifier** to help users quickly analyze artwork 
+            and estimate whether it is likely AI-generated or human-created.
+        </p>
+
+        <h3>How to use it</h3>
+        <p>
+            1. Upload an image file (JPG, PNG, etc.).<br>
+            2. The model will process the image directly in your browser — no data is uploaded anywhere.<br>
+            3. You will see the probability that the image is **AI-made** and **human-made**.<br>
+            4. Higher percentage = higher confidence.
+        </p>
+
+        <input type="file" id="imageUpload" accept="image/*">
+        <div id="preview-container"></div>
+        <div id="result-box"></div>
+
+    </div>
+</div>
+
+<footer>
+    © <span id="yourNameHere">YOUR NAME HERE</span> — Add your name by editing this text in the HTML file.
+</footer>
+
+
+<script>
+    // Link to your Teachable Machine model folder
     const URL = "./my_model/";
 
-    let model, webcam, labelContainer, maxPredictions;
+    let model, maxPredictions;
 
-    // Load the image model and setup the webcam
-    async function init() {
+    async function loadModel() {
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
-
-        // load the model and metadata
-        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
-        // or files from your local hard drive
-        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
         model = await tmImage.load(modelURL, metadataURL);
         maxPredictions = model.getTotalClasses();
-
-        // Convenience function to setup a webcam
-        const flip = true; // whether to flip the webcam
-        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
-        await webcam.setup(); // request access to the webcam
-        await webcam.play();
-        window.requestAnimationFrame(loop);
-
-        // append elements to the DOM
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        labelContainer = document.getElementById("label-container");
-        for (let i = 0; i < maxPredictions; i++) { // and class labels
-            labelContainer.appendChild(document.createElement("div"));
-        }
     }
 
-    async function loop() {
-        webcam.update(); // update the webcam frame
-        await predict();
-        window.requestAnimationFrame(loop);
-    }
+    loadModel();
 
-    // run the webcam image through the image model
-    async function predict() {
-        // predict can take in an image, video or canvas html element
-        const prediction = await model.predict(webcam.canvas);
-        for (let i = 0; i < maxPredictions; i++) {
-            const classPrediction =
-                prediction[i].className + ": " + prediction[i].probability.toFixed(2);
-            labelContainer.childNodes[i].innerHTML = classPrediction;
-        }
-    }
+    document.getElementById("imageUpload").addEventListener("change", async function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Display preview
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.style.width = "100%";
+        img.style.marginTop = "10px";
+
+        const previewContainer = document.getElementById("preview-container");
+        previewContainer.innerHTML = "";
+        previewContainer.appendChild(img);
+
+        // Wait for model to load
+        if (!model) await loadModel();
+
+        // Run prediction once image loads
+        img.onload = async () => {
+            const prediction = await model.predict(img);
+
+            let aiPercent = 0;
+            let humanPercent = 0;
+
+            prediction.forEach(p => {
+                if (p.className.toLowerCase().includes("ai")) {
+                    aiPercent = (p.probability * 100).toFixed(1);
+                }
+                if (p.className.toLowerCase().includes("human")) {
+                    humanPercent = (p.probability * 100).toFixed(1);
+                }
+            });
+
+            document.getElementById("result-box").innerHTML =
+                `<b>Results:</b><br>
+                 AI-generated: <b>${aiPercent}%</b><br>
+                 Human-made: <b>${humanPercent}%</b>`;
+        };
+    });
 </script>
+
+</body>
+</html>
