@@ -97,25 +97,33 @@
 
 
 <script>
-    // Link to your Teachable Machine model folder
-    const URL = "./my_model/";
-
+    const URL = "./my_model/";  // Make sure this folder exists in the same directory as index.html
     let model, maxPredictions;
 
     async function loadModel() {
+        console.log("Loading model...");
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+
+        try {
+            model = await tmImage.load(modelURL, metadataURL);
+            maxPredictions = model.getTotalClasses();
+            console.log("Model loaded successfully with", maxPredictions, "classes");
+        } catch (error) {
+            console.error("Error loading model:", error);
+        }
     }
 
     loadModel();
 
-    document.getElementById("imageUpload").addEventListener("change", async function (event) {
+    document.getElementById("imageUpload").addEventListener("change", async function(event) {
         const file = event.target.files[0];
-        if (!file) return;
+        if (!file) {
+            console.warn("No file selected.");
+            return;
+        }
 
-        // Display preview
+        // Show preview
         const img = document.createElement("img");
         img.src = URL.createObjectURL(file);
         img.style.width = "100%";
@@ -125,29 +133,43 @@
         previewContainer.innerHTML = "";
         previewContainer.appendChild(img);
 
-        // Wait for model to load
-        if (!model) await loadModel();
+        // Ensure model is loaded
+        if (!model) {
+            console.log("Model not ready, loading...");
+            await loadModel();
+        }
 
-        // Run prediction once image loads
+        // Predict once the image is ready
         img.onload = async () => {
-            const prediction = await model.predict(img);
+            console.log("Image loaded, running prediction...");
 
-            let aiPercent = 0;
-            let humanPercent = 0;
+            let prediction;
+            try {
+                prediction = await model.predict(img);
+                console.log("Raw prediction result:", prediction);
+            } catch (error) {
+                console.error("Prediction failed:", error);
+                return;
+            }
+
+            // Extract correct values based on your real class names
+            let aiArtProb = 0;
+            let humanArtProb = 0;
 
             prediction.forEach(p => {
-                if (p.className.toLowerCase().includes("ai")) {
-                    aiPercent = (p.probability * 100).toFixed(1);
+                if (p.className === "AI Art") {
+                    aiArtProb = (p.probability * 100).toFixed(1);
                 }
-                if (p.className.toLowerCase().includes("human")) {
-                    humanPercent = (p.probability * 100).toFixed(1);
+                if (p.className === "Human Art") {
+                    humanArtProb = (p.probability * 100).toFixed(1);
                 }
             });
 
-            document.getElementById("result-box").innerHTML =
-                `<b>Results:</b><br>
-                 AI-generated: <b>${aiPercent}%</b><br>
-                 Human-made: <b>${humanPercent}%</b>`;
+            document.getElementById("result-box").innerHTML = `
+                <b>Results:</b><br>
+                AI Art: <b>${aiArtProb}%</b><br>
+                Human Art: <b>${humanArtProb}%</b>
+            `;
         };
     });
 </script>
