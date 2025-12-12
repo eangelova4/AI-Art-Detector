@@ -1,67 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Art Detector</title>
+<meta charset="UTF-8">
+<title>AI Art Detector</title>
 
-    <!-- Retro Windows 98 styling -->
-    <style>
-        body {
-            font-family: "MS Sans Serif", Arial, sans-serif;
-            background: #008080;
-            margin: 0;
-            padding: 20px;
-            color: black;
-        }
+<!-- Retro Windows 98 style -->
+<style>
+    body {
+        font-family: "MS Sans Serif", Arial, sans-serif;
+        background: #008080;
+        margin: 0;
+        padding: 20px;
+        color: black;
+    }
 
-        .window {
-            background: #c0c0c0;
-            border: 2px solid #fff;
-            border-right-color: #404040;
-            border-bottom-color: #404040;
-            padding: 10px;
-            width: 600px;
-            margin: auto;
-        }
+    .window {
+        background: #c0c0c0;
+        border: 2px solid #fff;
+        border-right-color: #404040;
+        border-bottom-color: #404040;
+        padding: 10px;
+        width: 650px;
+        margin: auto;
+    }
 
-        .title-bar {
-            background: navy;
-            color: white;
-            padding: 5px;
-            font-weight: bold;
-        }
+    .title-bar {
+        background: navy;
+        color: white;
+        padding: 5px;
+        font-weight: bold;
+    }
 
-        .content {
-            padding: 10px;
-            background: #e0e0e0;
-            border: 2px inset #808080;
-        }
+    .content {
+        padding: 10px;
+        background: #e0e0e0;
+        border: 2px inset #808080;
+    }
 
-        input[type="file"] {
-            margin-top: 10px;
-            width: 100%;
-        }
+    input[type="file"], button {
+        margin-top: 10px;
+        width: 100%;
+        font-size: 14px;
+    }
 
-        #result-box {
-            background: white;
-            padding: 10px;
-            border: 2px inset #808080;
-            margin-top: 15px;
-        }
+    #preview-container img, #webcam-container canvas {
+        width: 100%;
+        margin-top: 10px;
+    }
 
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: white;
-            font-size: 14px;
-        }
-    </style>
+    #result-box {
+        background: white;
+        padding: 10px;
+        border: 2px inset #808080;
+        margin-top: 15px;
+    }
 
-    <!-- Teachable Machine + TensorFlow -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+    footer {
+        text-align: center;
+        margin-top: 20px;
+        color: white;
+        font-size: 14px;
+    }
+</style>
+
+<!-- TensorFlow + Teachable Machine -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest"></script>
+
 </head>
-
 <body>
 
 <div class="window">
@@ -72,97 +78,71 @@
         <p>
             AI tools have become extremely advanced, making it difficult to tell whether a piece of art is human-made 
             or created by an artificial intelligence system.  
-            This website uses a **Google Teachable Machine image classifier** to help users quickly analyze artwork 
-            and estimate whether it is likely AI-generated or human-created.
+            This website uses a Google Teachable Machine image classifier to help users quickly analyze artwork.
         </p>
 
         <h3>How to use it</h3>
         <p>
-            1. Upload an image file (JPG, PNG, etc.).<br>
-            2. The model will process the image directly in your browser — no data is uploaded anywhere.<br>
-            3. You will see the probability that the image is **AI-made** and **human-made**.<br>
-            4. Higher percentage = higher confidence.
+            1. You can either <b>upload an image</b> or <b>use your webcam</b> to analyze art.<br>
+            2. The model will process the image directly in your browser.<br>
+            3. You will see the probability that the image is AI-generated or Human-made.
         </p>
 
         <input type="file" id="imageUpload" accept="image/*">
+        <button id="startWebcam">Use Webcam</button>
+
         <div id="preview-container"></div>
+        <div id="webcam-container"></div>
         <div id="result-box"></div>
 
     </div>
 </div>
 
 <footer>
-    © <span id="yourNameHere">YOUR NAME HERE</span> — Add your name by editing this text in the HTML file.
+    © <span id="yourNameHere">YOUR NAME HERE</span> — Replace with your name.
 </footer>
 
-
 <script>
-    const URL = "./my_model/";  // Make sure this folder exists in the same directory as index.html
-    let model, maxPredictions;
+    const URL = "./my_model/"; // Your Teachable Machine model folder
+    let model, maxPredictions, webcam;
 
     async function loadModel() {
-        console.log("Loading model...");
         const modelURL = URL + "model.json";
         const metadataURL = URL + "metadata.json";
 
-        try {
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
-            console.log("Model loaded successfully with", maxPredictions, "classes");
-        } catch (error) {
-            console.error("Error loading model:", error);
-        }
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+        console.log("Model loaded successfully!");
     }
 
     loadModel();
 
+    // ================= IMAGE UPLOAD =================
     document.getElementById("imageUpload").addEventListener("change", async function(event) {
         const file = event.target.files[0];
-        if (!file) {
-            console.warn("No file selected.");
-            return;
+        if (!file) return;
+
+        // Stop webcam if active
+        if (webcam) {
+            webcam.stop();
+            document.getElementById("webcam-container").innerHTML = "";
         }
 
-        // Show preview
         const img = document.createElement("img");
         img.src = URL.createObjectURL(file);
-        img.style.width = "100%";
-        img.style.marginTop = "10px";
 
         const previewContainer = document.getElementById("preview-container");
         previewContainer.innerHTML = "";
         previewContainer.appendChild(img);
 
-        // Ensure model is loaded
-        if (!model) {
-            console.log("Model not ready, loading...");
-            await loadModel();
-        }
-
-        // Predict once the image is ready
         img.onload = async () => {
-            console.log("Image loaded, running prediction...");
-
-            let prediction;
-            try {
-                prediction = await model.predict(img);
-                console.log("Raw prediction result:", prediction);
-            } catch (error) {
-                console.error("Prediction failed:", error);
-                return;
-            }
-
-            // Extract correct values based on your real class names
+            const prediction = await model.predict(img);
             let aiArtProb = 0;
             let humanArtProb = 0;
 
             prediction.forEach(p => {
-                if (p.className === "AI Art") {
-                    aiArtProb = (p.probability * 100).toFixed(1);
-                }
-                if (p.className === "Human Art") {
-                    humanArtProb = (p.probability * 100).toFixed(1);
-                }
+                if (p.className === "AI Art") aiArtProb = (p.probability*100).toFixed(1);
+                if (p.className === "Human Art") humanArtProb = (p.probability*100).toFixed(1);
             });
 
             document.getElementById("result-box").innerHTML = `
@@ -172,6 +152,47 @@
             `;
         };
     });
+
+    // ================= WEBCAM =================
+    document.getElementById("startWebcam").addEventListener("click", async function() {
+        // Stop previous webcam if exists
+        if (webcam) webcam.stop();
+
+        // Clear uploaded preview
+        document.getElementById("preview-container").innerHTML = "";
+
+        webcam = new tmImage.Webcam(320, 320, true); // width, height, flip
+        await webcam.setup();
+        await webcam.play();
+        document.getElementById("webcam-container").innerHTML = "";
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+        window.requestAnimationFrame(loop);
+    });
+
+    async function loop() {
+        webcam.update();
+        await predictWebcam();
+        window.requestAnimationFrame(loop);
+    }
+
+    async function predictWebcam() {
+        const prediction = await model.predict(webcam.canvas);
+
+        let aiArtProb = 0;
+        let humanArtProb = 0;
+
+        prediction.forEach(p => {
+            if (p.className === "AI Art") aiArtProb = (p.probability*100).toFixed(1);
+            if (p.className === "Human Art") humanArtProb = (p.probability*100).toFixed(1);
+        });
+
+        document.getElementById("result-box").innerHTML = `
+            <b>Results:</b><br>
+            AI Art: <b>${aiArtProb}%</b><br>
+            Human Art: <b>${humanArtProb}%</b>
+        `;
+    }
 </script>
 
 </body>
