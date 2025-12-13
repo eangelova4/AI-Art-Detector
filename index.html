@@ -2,35 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <div class="title-bar">
-    AI Art Detector
-    <span style="float:right;">
-        <span class="win-btn">_</span>
-        <span class="win-btn">□</span>
-        <span class="win-btn">✕</span>
-    </span>
-</div>
+    <title>AI Art Detector</title>
 
-    <!-- Windows 98–style font -->
     <style>
         body {
             background-color: #008080;
-            font-family: "Tahoma", "MS Sans Serif", sans-serif;
+            font-family: Tahoma, "MS Sans Serif", sans-serif;
             margin: 0;
             padding: 20px;
         }
 
         .window {
-            background-color: #c0c0c0;
-            border: 2px solid #000;
             width: 720px;
             margin: auto;
+            background: #c0c0c0;
+            border: 2px solid #000;
             box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
         }
 
         .title-bar {
             background: linear-gradient(to right, #000080, #1084d0);
-            color: white;
+            color: #fff;
             padding: 6px 10px;
             font-weight: bold;
             font-size: 14px;
@@ -42,16 +34,15 @@
         }
 
         h2 {
-            margin-top: 20px;
             font-size: 16px;
+            margin-top: 20px;
         }
 
         button {
             font-family: inherit;
             padding: 6px 12px;
-            margin-top: 5px;
             border: 2px solid #000;
-            background-color: #c0c0c0;
+            background: #c0c0c0;
             box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
             cursor: pointer;
         }
@@ -60,8 +51,11 @@
             box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
         }
 
-        input[type="file"] {
-            margin-top: 8px;
+        .group-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: #c0c0c0;
+            border: 2px solid #808080;
         }
 
         #webcam-container,
@@ -69,312 +63,178 @@
             margin-top: 10px;
         }
 
-        .result-box {
-            margin-top: 15px;
-            padding: 10px;
-            background: #fff;
+        #image-preview img {
+            max-width: 200px;
             border: 2px inset #808080;
         }
 
+        #drop-zone {
+            width: 240px;
+            padding: 16px;
+            text-align: center;
+            background: #c0c0c0;
+            border: 2px dashed #000;
+            position: relative;
+            cursor: pointer;
+        }
+
+        #drop-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 10px;
+            background: #eaeaea;
+            border: 2px solid #808080;
+        }
+
         .final-result {
-            margin-top: 10px;
+            margin-top: 8px;
+            padding: 6px;
+            background: #f5f5f5;
+            border: 1px solid #808080;
             font-weight: bold;
         }
 
-        footer {
-            margin-top: 20px;
-            text-align: center;
+        .warning-box {
+            margin-bottom: 10px;
+            padding: 6px;
+            background: #f0f0f0;
+            border: 1px solid #808080;
             font-size: 12px;
-            color: #000;
         }
 
-        #drop-zone {
-    width: 220px;
-    height: 80px;
-    background: #c0c0c0;
-    border: 2px dashed #000;
-    box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
-    text-align: center;
-    padding-top: 20px;
-    cursor: pointer;
-    position: relative;
-}
-
-#drop-zone input {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    top: 0;
-    left: 0;
-    cursor: pointer;
-}
-
-#drop-zone.dragover {
-    background: #e0e0e0;
-}
-
-#image-preview img {
-    margin-top: 10px;
-    max-width: 200px;
-    border: 2px inset #808080;
-}
-        .group-box {
-    border: 2px groove #fff;
-    padding: 10px;
-    margin-top: 15px;
-    background: #c0c0c0;
-}
-
-.result-box div {
-    margin: 4px 0;
-}
-
-.final-result {
-    margin-top: 8px;
-    padding: 6px;
-    background: #ffffe1;
-    border: 2px inset #808080;
-}
-
-.warning-box {
-    margin-top: 15px;
-    padding: 8px;
-    background: #ffffcc;
-    border: 2px groove #000;
-    font-size: 12px;
-}
-
-.warning-title {
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-        .win-btn {
-    display: inline-block;
-    width: 18px;
-    height: 16px;
-    background: #c0c0c0;
-    color: black;
-    text-align: center;
-    line-height: 14px;
-    font-size: 12px;
-    margin-left: 2px;
-    border: 1px solid #000;
-    box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-}
-        #confidence-bar {
-    width: 100%;
-    height: 16px;
-    background: #c0c0c0;
-    border: 2px inset #808080;
-}
-
-#confidence-fill {
-    height: 100%;
-    width: 0%;
-    background: #000080;
-}
-        button:hover {
-    filter: brightness(1.05);
-}
-
-#drop-zone:hover {
-    background: #d6d6d6;
-}
+        footer {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 12px;
+        }
     </style>
 </head>
-<body>
 
+<body>
 <div class="window">
     <div class="title-bar">AI Art Detector</div>
 
     <div class="content">
         <p>
             <strong>What this tool does</strong><br>
-            AI tools have become extremely advanced, making it difficult to tell whether a piece
-            of art is created by a human or generated by artificial intelligence.
-            This website uses a Google Teachable Machine image classifier to analyze artwork
-            directly in your browser.
+            This website uses a Google Teachable Machine image classifier to help determine
+            whether a piece of artwork is more likely to be AI-generated or human-made.
+            All processing happens locally in your browser.
         </p>
 
         <h2>How to use it</h2>
         <ol>
             <li>Upload an image or enable your webcam.</li>
-            <li>The model processes the image locally in your browser.</li>
-            <li>You will see the probability and final result.</li>
+            <li>The model analyzes the image locally.</li>
+            <li>View the probability and final result.</li>
         </ol>
 
         <div class="group-box">
-    <h2>Webcam Analysis</h2>
-    <button onclick="initWebcam()">Start Webcam</button>
-    <div id="webcam-container"></div>
-</div>
+            <h2>Webcam Analysis</h2>
+            <button onclick="initWebcam()">Start Webcam</button>
+            <div id="webcam-container"></div>
+        </div>
 
-        <<div class="group-box">
-    <h2>Upload Image</h2>
-
-    <div id="drop-zone">
-        Drag & drop an image here<br>
-        or click to browse
-        <input type="file" id="file-input" accept="image/*">
-    </div>
-
-    <div id="image-preview"></div>
-</div>
-
+        <div class="group-box">
+            <h2>Upload Image</h2>
+            <div id="drop-zone">
+                Drag & drop image here<br>
+                or click to browse
+                <input type="file" id="file-input" accept="image/*">
+            </div>
+            <div id="image-preview"></div>
+        </div>
 
         <div class="result-box">
-                <div style="margin-bottom:6px;">Confidence</div>
-    </div>
             <div class="warning-box">
-    <div class="warning-title">⚠ Accuracy Notice</div>
-    This tool uses a machine learning model trained on limited data.
-    Results may be inaccurate and should not be treated as definitive proof.
-</div>
+                ⚠ This tool is experimental. Results may be inaccurate and should not be
+                treated as definitive proof.
+            </div>
+
             <div id="label-container"></div>
             <div class="final-result" id="final-result"></div>
         </div>
     </div>
-    
+
     <footer>
         Created by <em>Elena Angelova</em>
     </footer>
 </div>
 
-<!-- TensorFlow & Teachable Machine -->
+<!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
 <script>
     const MODEL_URL = "./my_model/";
-
-    let model, webcam, labelContainer, maxPredictions;
+    let model, webcam, labelContainer;
 
     async function loadModel() {
         if (model) return;
-
-        const modelURL = MODEL_URL + "model.json";
-        const metadataURL = MODEL_URL + "metadata.json";
-
-        model = await tmImage.load(modelURL, metadataURL);
-        maxPredictions = model.getTotalClasses();
+        model = await tmImage.load(
+            MODEL_URL + "model.json",
+            MODEL_URL + "metadata.json"
+        );
         labelContainer = document.getElementById("label-container");
     }
 
-    /* ======================
-       WEBCAM
-    ====================== */
     async function initWebcam() {
         await loadModel();
-
-        const flip = true;
-        webcam = new tmImage.Webcam(200, 200, flip);
+        webcam = new tmImage.Webcam(200, 200, true);
         await webcam.setup();
         await webcam.play();
-
-        document.getElementById("webcam-container").innerHTML = "";
         document.getElementById("webcam-container").appendChild(webcam.canvas);
-
-        window.requestAnimationFrame(webcamLoop);
+        requestAnimationFrame(webcamLoop);
     }
 
     async function webcamLoop() {
         webcam.update();
         await predict(webcam.canvas);
-        window.requestAnimationFrame(webcamLoop);
+        requestAnimationFrame(webcamLoop);
     }
 
-    /* ======================
-       IMAGE UPLOAD
-    ====================== */
-    function setupDragAndDrop() {
-        const dropZone = document.getElementById("drop-zone");
-        const fileInput = document.getElementById("file-input");
-
-        dropZone.addEventListener("dragover", e => {
-            e.preventDefault();
-            dropZone.classList.add("dragover");
-        });
-
-        dropZone.addEventListener("dragleave", () => {
-            dropZone.classList.remove("dragover");
-        });
-
-        dropZone.addEventListener("drop", e => {
-            e.preventDefault();
-            dropZone.classList.remove("dragover");
-            handleFile(e.dataTransfer.files[0]);
-        });
-
-        fileInput.addEventListener("change", e => {
-            handleFile(e.target.files[0]);
-        });
+    function setupUpload() {
+        const input = document.getElementById("file-input");
+        input.addEventListener("change", e => handleFile(e.target.files[0]));
     }
 
     async function handleFile(file) {
         if (!file) return;
         await loadModel();
-
         const img = document.createElement("img");
         img.src = URL.createObjectURL(file);
-
         img.onload = async () => {
-            const preview = document.getElementById("image-preview");
-            preview.innerHTML = "";
-            preview.appendChild(img);
+            document.getElementById("image-preview").innerHTML = "";
+            document.getElementById("image-preview").appendChild(img);
             await predict(img);
         };
     }
 
-    /* ======================
-       PREDICTION
-    ====================== */
-   async function predict(image) {
-    const prediction = await model.predict(image);
+    async function predict(source) {
+        const prediction = await model.predict(source);
+        let ai = 0, human = 0;
+        labelContainer.innerHTML = "";
 
-    let aiProb = 0;
-    let humanProb = 0;
+        prediction.forEach(p => {
+            const percent = (p.probability * 100).toFixed(1);
+            labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
+            if (p.className === "AI") ai = p.probability;
+            if (p.className === "Human") human = p.probability;
+        });
 
-    labelContainer.innerHTML = "";
-
-    prediction.forEach(p => {
-        const percent = (p.probability * 100).toFixed(1);
-        labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
-
-        if (p.className === "AI") aiProb = p.probability;
-        if (p.className === "Human") humanProb = p.probability;
-    });
-
-    const finalResult = document.getElementById("final-result");
-    const confidence = Math.max(aiProb, humanProb);
-       const fill = document.getElementById("confidence-fill");
-fill.style.width = Math.round(confidence * 100) + "%";
-
-if (confidence < 0.7) {
-    fill.style.background = "#800000";
-} else {
-    fill.style.background = "#000080";
-}
-
-    if (aiProb > humanProb) {
-        finalResult.innerText = "Final Result: Likely AI-generated artwork";
-    } else {
-        finalResult.innerText = "Final Result: Likely human-made artwork";
+        document.getElementById("final-result").innerText =
+            ai > human
+                ? "Final Result: Likely AI-generated artwork"
+                : "Final Result: Likely Human-made artwork";
     }
 
-    // Confidence warning
-    if (confidence < 0.7) {
-        finalResult.innerText += " (Low confidence)";
-        finalResult.style.background = "#ffdddd";
-    } else {
-        finalResult.style.background = "#ffffe1";
-    }
-}
-
-    /* ======================
-       INIT
-    ====================== */
-    window.addEventListener("DOMContentLoaded", setupDragAndDrop);
+    window.addEventListener("DOMContentLoaded", setupUpload);
 </script>
-
 </body>
 </html>
