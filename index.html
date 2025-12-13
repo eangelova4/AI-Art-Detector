@@ -1,128 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AI Art Detector</title>
+<meta charset="UTF-8">
+<title>AI Art Detector</title>
 
-    <style>
-        body {
-            background-color: #008080;
-            font-family: Tahoma, "MS Sans Serif", sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+<style>
+    body {
+        background-color: #008080;
+        font-family: Tahoma, "MS Sans Serif", sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
+    }
 
-        .window {
-            width: 720px;
-            margin: auto;
-            background: #c0c0c0;
-            border: 2px solid #000;
-            box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
-        }
+    .window {
+        width: 720px;
+        margin: 50px auto;
+        background: #c0c0c0;
+        border: 2px solid #000;
+        box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
+    }
 
-        .title-bar {
-            background: linear-gradient(to right, #000080, #1084d0);
-            color: #fff;
-            padding: 6px 10px;
-            font-weight: bold;
-            font-size: 14px;
-        }
+    .title-bar {
+        background: linear-gradient(to right, #000080, #1084d0);
+        color: #fff;
+        padding: 6px 10px;
+        font-weight: bold;
+        font-size: 14px;
+        position: relative;
+    }
 
-        .content {
-            padding: 15px;
-            font-size: 14px;
-        }
+    .title-bar .close-btn {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+        width: 18px;
+        height: 16px;
+        line-height: 14px;
+        text-align: center;
+        border: 1px solid #000;
+        background: #c0c0c0;
+        box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-        h2 {
-            font-size: 16px;
-            margin-top: 20px;
-        }
+    .content {
+        padding: 15px;
+        font-size: 14px;
+        text-align: left;
+    }
 
-        button {
-            font-family: inherit;
-            padding: 6px 12px;
-            border: 2px solid #000;
-            background: #c0c0c0;
-            box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
-            cursor: pointer;
-        }
+    h2 {
+        font-size: 16px;
+        margin-top: 20px;
+    }
 
-        button:active {
-            box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
-        }
+    button {
+        font-family: inherit;
+        padding: 6px 12px;
+        border: 2px solid #000;
+        background: #c0c0c0;
+        box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+        cursor: pointer;
+        margin-top: 6px;
+        margin-right: 6px;
+    }
 
-        .group-box {
-            margin-top: 15px;
-            padding: 10px;
-            background: #c0c0c0;
-            border: 2px solid #808080;
-        }
+    button:active {
+        box-shadow: inset 1px 1px #808080, inset -1px -1px #fff;
+    }
 
-        #webcam-container,
-        #image-preview {
-            margin-top: 10px;
-        }
+    .group-box {
+        margin-top: 15px;
+        padding: 10px;
+        background: #c0c0c0;
+        border: 2px solid #808080;
+    }
 
-        #image-preview img {
-            max-width: 200px;
-            border: 2px inset #808080;
-        }
+    #webcam-container,
+    #image-preview {
+        margin-top: 10px;
+    }
 
-        #drop-zone {
-            width: 240px;
-            padding: 16px;
-            text-align: center;
-            background: #c0c0c0;
-            border: 2px dashed #000;
-            position: relative;
-            cursor: pointer;
-        }
+    #image-preview img {
+        max-width: 200px;
+        border: 2px inset #808080;
+    }
 
-        #drop-zone input {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
+    #drop-zone {
+        width: 240px;
+        padding: 16px;
+        text-align: center;
+        background: #c0c0c0;
+        border: 2px dashed #000;
+        position: relative;
+        cursor: pointer;
+        margin-top: 8px;
+    }
 
-        .result-box {
-            margin-top: 20px;
-            padding: 10px;
-            background: #eaeaea;
-            border: 2px solid #808080;
-        }
+    #drop-zone input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
 
-        .final-result {
-            margin-top: 8px;
-            padding: 6px;
-            background: #f5f5f5;
-            border: 1px solid #808080;
-            font-weight: bold;
-        }
+    .result-box {
+        margin-top: 20px;
+        padding: 10px;
+        background: #eaeaea;
+        border: 2px solid #808080;
+    }
 
-        .warning-box {
-            margin-bottom: 10px;
-            padding: 6px;
-            background: #f0f0f0;
-            border: 1px solid #808080;
-            font-size: 12px;
-        }
+    .final-result {
+        margin-top: 8px;
+        padding: 6px;
+        background: #f5f5f5;
+        border: 1px solid #808080;
+        font-weight: bold;
+    }
 
-        footer {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 12px;
-        }
-        button {
-    margin-right: 6px;
-    margin-top: 6px;
-}
-    </style>
+    .warning-box {
+        margin-bottom: 10px;
+        padding: 6px;
+        background: #f0f0f0;
+        border: 1px solid #808080;
+        font-size: 12px;
+    }
+
+    footer {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    #reopen-btn {
+        display: none;
+        width: 120px;
+        height: 120px;
+        background: #c0c0c0;
+        border: 2px solid #000;
+        box-shadow: inset -2px -2px #808080, inset 2px 2px #fff;
+        line-height: 120px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 14px;
+    }
+</style>
 </head>
 
 <body>
-<div class="window">
-    <div class="title-bar">AI Art Detector</div>
+<div class="window" id="app-window">
+    <div class="title-bar">
+        AI Art Detector
+        <div class="close-btn" onclick="closeWindow()">✕</div>
+    </div>
 
     <div class="content">
         <p>
@@ -143,8 +180,7 @@
             <h2>Webcam Analysis</h2>
             <button onclick="initWebcam()">Start Webcam</button>
             <button onclick="stopWebcam()">Stop Webcam</button>
-        <div id="webcam-container"></div>
-
+            <div id="webcam-container"></div>
         </div>
 
         <div class="group-box">
@@ -163,7 +199,6 @@
                 ⚠ This tool is experimental. Results may be inaccurate and should not be
                 treated as definitive proof.
             </div>
-
             <div id="label-container"></div>
             <div class="final-result" id="final-result"></div>
         </div>
@@ -174,83 +209,84 @@
     </footer>
 </div>
 
+<!-- Reopen Button -->
+<div id="reopen-btn" onclick="reopenWindow()">Open AI Art Detector</div>
+
 <!-- Libraries -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
 <script>
-    const MODEL_URL = "./my_model/";
-    let model, webcam, labelContainer;
+const MODEL_URL = "./my_model/";
+let model, webcam, labelContainer;
 
-    async function loadModel() {
-        if (model) return;
-        model = await tmImage.load(
-            MODEL_URL + "model.json",
-            MODEL_URL + "metadata.json"
-        );
-        labelContainer = document.getElementById("label-container");
-    }
+async function loadModel() {
+    if (model) return;
+    model = await tmImage.load(
+        MODEL_URL + "model.json",
+        MODEL_URL + "metadata.json"
+    );
+    labelContainer = document.getElementById("label-container");
+}
 
-    async function initWebcam() {
-        await loadModel();
-        webcam = new tmImage.Webcam(200, 200, true);
-        await webcam.setup();
-        await webcam.play();
-        document.getElementById("webcam-container").appendChild(webcam.canvas);
-        requestAnimationFrame(webcamLoop);
-    }
+async function initWebcam() {
+    await loadModel();
+    webcam = new tmImage.Webcam(200, 200, true);
+    await webcam.setup();
+    await webcam.play();
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+    requestAnimationFrame(webcamLoop);
+}
 
-    async function webcamLoop() {
-        webcam.update();
-        await predict(webcam.canvas);
-        requestAnimationFrame(webcamLoop);
-    }
+async function webcamLoop() {
+    webcam.update();
+    await predict(webcam.canvas);
+    requestAnimationFrame(webcamLoop);
+}
 
-    function setupUpload() {
-        const input = document.getElementById("file-input");
-        input.addEventListener("change", e => handleFile(e.target.files[0]));
-    }
+function setupUpload() {
+    const input = document.getElementById("file-input");
+    input.addEventListener("change", e => handleFile(e.target.files[0]));
+}
 
-    async function handleFile(file) {
-        if (!file) return;
-        await loadModel();
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        img.onload = async () => {
-            document.getElementById("image-preview").innerHTML = "";
-            document.getElementById("image-preview").appendChild(img);
-            await predict(img);
-        };
-    }
+async function handleFile(file) {
+    if (!file) return;
+    await loadModel();
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(file);
+    img.onload = async () => {
+        document.getElementById("image-preview").innerHTML = "";
+        document.getElementById("image-preview").appendChild(img);
+        await predict(img);
+    };
+}
 
-    async function predict(source) {
-        const prediction = await model.predict(source);
-        let ai = 0, human = 0;
-        labelContainer.innerHTML = "";
+async function predict(source) {
+    const prediction = await model.predict(source);
+    let ai = 0, human = 0;
+    labelContainer.innerHTML = "";
 
-        prediction.forEach(p => {
-            const percent = (p.probability * 100).toFixed(1);
-            labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
-            if (p.className === "AI") ai = p.probability;
-            if (p.className === "Human") human = p.probability;
-        });
+    prediction.forEach(p => {
+        const percent = (p.probability * 100).toFixed(1);
+        labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
+        if (p.className === "AI") ai = p.probability;
+        if (p.className === "Human") human = p.probability;
+    });
 
-        document.getElementById("final-result").innerText =
-            ai > human
-                ? "Final Result: Likely AI-generated artwork"
-                : "Final Result: Likely Human-made artwork";
-    }
+    const finalResult = document.getElementById("final-result");
+    finalResult.innerText =
+        ai > human
+            ? "Final Result: Likely AI-generated artwork"
+            : "Final Result: Likely Human-made artwork";
+}
 
-    window.addEventListener("DOMContentLoaded", setupUpload);
-    function stopWebcam() {
+window.addEventListener("DOMContentLoaded", setupUpload);
+
+function stopWebcam() {
     if (!webcam) return;
-
     webcam.stop();
     webcam = null;
-
-    const container = document.getElementById("webcam-container");
-    container.innerHTML = "";
-
+    document.getElementById("webcam-container").innerHTML = "";
     document.getElementById("final-result").innerText = "";
     labelContainer.innerHTML = "";
 }
@@ -259,9 +295,20 @@ function clearImage() {
     document.getElementById("image-preview").innerHTML = "";
     document.getElementById("final-result").innerText = "";
     labelContainer.innerHTML = "";
+    document.getElementById("file-input").value = "";
+}
 
-    const input = document.getElementById("file-input");
-    if (input) input.value = "";
+// Close and reopen window
+function closeWindow() {
+    document.getElementById("app-window").style.display = "none";
+    document.getElementById("reopen-btn").style.display = "block";
+    stopWebcam();
+    clearImage();
+}
+
+function reopenWindow() {
+    document.getElementById("app-window").style.display = "block";
+    document.getElementById("reopen-btn").style.display = "none";
 }
 </script>
 </body>
