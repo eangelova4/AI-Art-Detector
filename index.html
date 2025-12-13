@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AI Art Detector</title>
+    <div class="title-bar">
+    AI Art Detector
+    <span style="float:right;">
+        <span class="win-btn">_</span>
+        <span class="win-btn">□</span>
+        <span class="win-btn">✕</span>
+    </span>
+</div>
 
     <!-- Windows 98–style font -->
     <style>
@@ -133,14 +140,46 @@
 .warning-box {
     margin-top: 15px;
     padding: 8px;
-    background: #fff3cd;
-    border: 2px solid #000;
+    background: #ffffcc;
+    border: 2px groove #000;
     font-size: 12px;
 }
 
 .warning-title {
     font-weight: bold;
     margin-bottom: 4px;
+}
+        .win-btn {
+    display: inline-block;
+    width: 18px;
+    height: 16px;
+    background: #c0c0c0;
+    color: black;
+    text-align: center;
+    line-height: 14px;
+    font-size: 12px;
+    margin-left: 2px;
+    border: 1px solid #000;
+    box-shadow: inset -1px -1px #808080, inset 1px 1px #fff;
+}
+        #confidence-bar {
+    width: 100%;
+    height: 16px;
+    background: #c0c0c0;
+    border: 2px inset #808080;
+}
+
+#confidence-fill {
+    height: 100%;
+    width: 0%;
+    background: #000080;
+}
+        button:hover {
+    filter: brightness(1.05);
+}
+
+#drop-zone:hover {
+    background: #d6d6d6;
 }
     </style>
 </head>
@@ -165,22 +204,30 @@
             <li>You will see the probability and final result.</li>
         </ol>
 
-        <h2>Webcam Analysis</h2>
-        <button onclick="initWebcam()">Start Webcam</button>
-        <div id="webcam-container"></div>
-
-        <h2>Upload Image</h2>
-
-<div id="drop-zone">
-    Drag & drop an image here<br>
-    or click to browse
-    <input type="file" id="file-input" accept="image/*">
+        <div class="group-box">
+    <h2>Webcam Analysis</h2>
+    <button onclick="initWebcam()">Start Webcam</button>
+    <div id="webcam-container"></div>
 </div>
 
-<div id="image-preview"></div>
+        <<div class="group-box">
+    <h2>Upload Image</h2>
+
+    <div id="drop-zone">
+        Drag & drop an image here<br>
+        or click to browse
+        <input type="file" id="file-input" accept="image/*">
+    </div>
+
+    <div id="image-preview"></div>
+</div>
 
 
         <div class="result-box">
+                <div style="margin-bottom:6px;">Confidence</div>
+    <div id="confidence-bar">
+        <div id="confidence-fill"></div>
+    </div>
             <div class="warning-box">
     <div class="warning-title">⚠ Accuracy Notice</div>
     This tool uses a machine learning model trained on limited data.
@@ -190,9 +237,9 @@
             <div class="final-result" id="final-result"></div>
         </div>
     </div>
-
+    
     <footer>
-        Created by <em>Your Name Here</em>
+        Created by <em>Elena Angelova</em>
     </footer>
 </div>
 
@@ -301,6 +348,14 @@
 
     const finalResult = document.getElementById("final-result");
     const confidence = Math.max(aiProb, humanProb);
+       const fill = document.getElementById("confidence-fill");
+fill.style.width = Math.round(confidence * 100) + "%";
+
+if (confidence < 0.7) {
+    fill.style.background = "#800000";
+} else {
+    fill.style.background = "#000080";
+}
 
     if (aiProb > humanProb) {
         finalResult.innerText = "Final Result: Likely AI-generated artwork";
