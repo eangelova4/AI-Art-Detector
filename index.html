@@ -112,6 +112,36 @@
     max-width: 200px;
     border: 2px inset #808080;
 }
+        .group-box {
+    border: 2px groove #fff;
+    padding: 10px;
+    margin-top: 15px;
+    background: #c0c0c0;
+}
+
+.result-box div {
+    margin: 4px 0;
+}
+
+.final-result {
+    margin-top: 8px;
+    padding: 6px;
+    background: #ffffe1;
+    border: 2px inset #808080;
+}
+
+.warning-box {
+    margin-top: 15px;
+    padding: 8px;
+    background: #fff3cd;
+    border: 2px solid #000;
+    font-size: 12px;
+}
+
+.warning-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
     </style>
 </head>
 <body>
@@ -151,6 +181,11 @@
 
 
         <div class="result-box">
+            <div class="warning-box">
+    <div class="warning-title">⚠ Accuracy Notice</div>
+    This tool uses a machine learning model trained on limited data.
+    Results may be inaccurate and should not be treated as definitive proof.
+</div>
             <div id="label-container"></div>
             <div class="final-result" id="final-result"></div>
         </div>
@@ -248,27 +283,39 @@
     /* ======================
        PREDICTION
     ====================== */
-    async function predict(image) {
-        const prediction = await model.predict(image);
+   async function predict(image) {
+    const prediction = await model.predict(image);
 
-        let aiProb = 0;
-        let humanProb = 0;
+    let aiProb = 0;
+    let humanProb = 0;
 
-        labelContainer.innerHTML = "";
+    labelContainer.innerHTML = "";
 
-        prediction.forEach(p => {
-            const percent = (p.probability * 100).toFixed(1);
-            labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
+    prediction.forEach(p => {
+        const percent = (p.probability * 100).toFixed(1);
+        labelContainer.innerHTML += `<div>${p.className}: ${percent}%</div>`;
 
-            if (p.className === "AI") aiProb = p.probability;
-            if (p.className === "Human") humanProb = p.probability;
-        });
+        if (p.className === "AI") aiProb = p.probability;
+        if (p.className === "Human") humanProb = p.probability;
+    });
 
-        document.getElementById("final-result").innerText =
-            aiProb > humanProb
-                ? "Final Result: Likely AI-generated artwork"
-                : "Final Result: Likely human-made artwork";
+    const finalResult = document.getElementById("final-result");
+    const confidence = Math.max(aiProb, humanProb);
+
+    if (aiProb > humanProb) {
+        finalResult.innerText = "Final Result: Likely AI-generated artwork";
+    } else {
+        finalResult.innerText = "Final Result: Likely human-made artwork";
     }
+
+    // Confidence warning
+    if (confidence < 0.7) {
+        finalResult.innerText += " (Low confidence)";
+        finalResult.style.background = "#ffdddd";
+    } else {
+        finalResult.style.background = "#ffffe1";
+    }
+}
 
     /* ======================
        INIT
